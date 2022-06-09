@@ -1,15 +1,30 @@
-import React from 'react'
-
+import React, {useState} from 'react'
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import MDBox from "components/MDBox";
 import MDTypography from "components/MDTypography";
+import MDButton from 'components/MDButton';
+import {v4 as uuidv4} from 'uuid';
+import { useForm } from "react-hook-form";
 
-import Grid from "@mui/material/Grid";
-import Card from "@mui/material/Card";
+
+import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
+// import Card from "@mui/material/Card";
 import DataTable from "examples/Tables/DataTable";
+import AddIcon from "@mui/icons-material/Add"
+import ModalComponent from "components/Modal"
 
  const TrouserCustomization = () => {
+
+  const [openForm, setOpenForm]= useState(false);
+  const [data, setData] = useState([ {
+      id: uuidv4(),
+      name: 'no lining',
+            category: 'pants lining',
+            image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
+            action: <button>Edit</button>
+  }
+]) 
 
     const columns = [
         {Header: "Name", accessor: "name", width: "45%", align:'left'},
@@ -19,15 +34,71 @@ import DataTable from "examples/Tables/DataTable";
         
     ]
 
-    const rows = [
-        {
-            name: 'no lining',
-            category: 'pants lining',
-            image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
-            action: <button>Edit</button>
-        }
+    const cateogory = [
+      
+    {label: 'PANTS LINING', value: 'PANTS LINING'},
+    {label: 'BACK POCKET', value: 'BACK POCKET'},
+    {label: 'FRONT POCKET', value: 'FRONT POCKET'},
+    {label: 'BELT LOOPS', value: 'BELT LOOPS'},
+    {label: 'PLEATS', value: 'PLEATS'},
+    {label: 'TROUSER BOTTOM STYLE', value: 'TROUSER BOTTOM STYLE'},
+    {label: 'WAISTBAND FRONT', value: 'WAISTBAND FRONT'}
+    
     ]
+
+    // const rows = [
+    //     {
+    //         name: 'no lining',
+    //         category: 'pants lining',
+    //         image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
+    //         action: <button>Edit</button>
+    //     }
+    // ]
+
+    const {register, handleSubmit, watch, formState: {errors}} = useForm();
+const onSubmit = value => {
+setData([...data, value])
+};
+
+const FormCustomization = () => {
+        
+  return <form onSubmit={handleSubmit(onSubmit)}> 
+      <Stack direction = "column" spacing = {2}>
+  
+ 
+      <TextField fullWidth placeholder='Name'  id='outlined-basic' {...register("name")} label="Name"/>
+      
+
+
+  
+      <Autocomplete options = {cateogory}
+      sx={{ width: 300 }}
+     
+      renderInput={(params) => <TextField {...params} label="Type"  {...register("category")}/>}
+    />
+
+  
+
+ 
+
+     
+
+  <TextField fullWidth placeholder='Image' id='outlined-basic'  {...register("image")}/>
+
+ 
+
+
+    <MDButton variant = 'contained' color = 'info' type='submit' >Submit</MDButton>
+
+  </Stack>
+  </form>
+}
+
   return (
+    <>
+    <ModalComponent>
+      <FormCustomization/>
+    </ModalComponent>
     <DashboardLayout>
     <DashboardNavbar />
     <MDBox pt={6} pb={3}>
@@ -65,6 +136,7 @@ import DataTable from "examples/Tables/DataTable";
     </MDBox>
 
 </DashboardLayout>
+</>
   )
 }
 
