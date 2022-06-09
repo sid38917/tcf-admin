@@ -102,7 +102,7 @@ const routes = [
     key: "jacket customization options",
     icon: <Icon fontSize="small">person</Icon>,
     route: "/jacketcustomization",
-    component: <JacketCustomization />,
+    component:<JacketCustomization/>,
   },
   {
     type: "collapse",

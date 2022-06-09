@@ -1,6 +1,30 @@
-import React from 'react'
+import React, {useState} from 'react'
+import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
+import DashboardNavbar from "examples/Navbars/DashboardNavbar";
+import MDBox from "components/MDBox";
+import MDTypography from "components/MDTypography";
+import MDButton from 'components/MDButton';
+import {v4 as uuidv4} from 'uuid';
+import { useForm } from "react-hook-form";
+
+
+import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
+// import Card from "@mui/material/Card";
+import DataTable from "examples/Tables/DataTable";
+import AddIcon from "@mui/icons-material/Add"
+import ModalComponent from "components/Modal"
 
 const SuitCustomization = () => {
+
+  const [openForm, setOpenForm]= useState(false);
+  const [data, setData] = useState([ {
+      id: uuidv4(),
+      name: 'double breasted 2 button',
+         category: 'suit type',
+         image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
+           action: <button>Edit</button>
+  }
+])
 
   const columns = [
     {Header: "Name", accessor: "name", width: "45%", align:'left'},
@@ -10,16 +34,83 @@ const SuitCustomization = () => {
     
 ]
 
-const rows = [
-    {
-        name: 'double breasted 2 button',
-        category: 'suit type',
-        image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
-        action: <button>Edit</button>
-    }
+// const rows = [
+//     {
+//         name: 'double breasted 2 button',
+//         category: 'suit type',
+//         image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
+//         action: <button>Edit</button>
+//     }
+// ]
+
+
+const cateogory = [{
+  label: 'SUIT TYPE', value: 'SUIT TYPE'
+},
+{label: 'LAPELS', value: 'LAPELS'},
+{label: 'BUTTON', value:'BUTTON'},
+{label: 'BREAST POCKET', value: 'BREAST POCKET'},
+{label: 'JACKET LINING', value: 'JACKET LINING'},
+{label: 'JACKET LINING TYPE', value: 'JACKET LINING TYPE'},
+{label: 'ELBOW PATCH', value: 'ELBOW PATCH'},
+{label: 'WAIST COAT', value: 'WAIST COAT'},
+{label: 'PANTS LINING', value: 'PANTS LINING'},
+{label: 'BACK POCKET', value: 'BACK POCKET'},
+{label: 'FRONT POCKET', value: 'FRONT POCKET'},
+{label: 'BELT LOOPS', value: 'BELT LOOPS'},
+{label: 'PLEATS', value: 'PLEATS'},
+{label: 'TROUSER BOTTOM STYLE', value: 'TROUSER BOTTOM STYLE'},
+{label: 'WAISTBAND FRONT', value: 'WAISTBAND FRONT'},
+{label: 'JACKET INNER STYLE', value: 'JACKET INNER STYLE'},
+{label: 'SLEEVE OPENING', value: 'SLEEVE OPENING'}
 ]
 
+
+const {register, handleSubmit, watch, formState: {errors}} = useForm();
+const onSubmit = value => {
+setData([...data, value])
+};
+
+const FormCustomization = () => {
+        
+  return <form onSubmit={handleSubmit(onSubmit)}> 
+      <Stack direction = "column" spacing = {2}>
+  
+ 
+      <TextField fullWidth placeholder='Name'  id='outlined-basic' {...register("name")} label="Name"/>
+      
+
+
+  
+      <Autocomplete options = {cateogory}
+      sx={{ width: 300 }}
+     
+      renderInput={(params) => <TextField {...params} label="Type"  {...register("category")}/>}
+    />
+
+  
+
+ 
+
+     
+
+  <TextField fullWidth placeholder='Image' id='outlined-basic'  {...register("image")}/>
+
+ 
+
+
+    <MDButton variant = 'contained' color = 'info' type='submit' >Submit</MDButton>
+
+  </Stack>
+  </form>
+}
+
   return (
+    <>
+    <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}> 
+      <FormCustomization/>
+      </ModalComponent>
+
     <DashboardLayout>
     <DashboardNavbar />
     <MDBox pt={6} pb={3}>
@@ -39,6 +130,11 @@ const rows = [
 <MDTypography variant="h6" color="white">
               Suit Customization Table
             </MDTypography>
+            <Grid item>
+                         <Button variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
+                    Add Suit Customization 
+                </Button>
+                         </Grid>
              </MDBox>
              <MDBox pt={3}>
             <DataTable
@@ -57,6 +153,9 @@ const rows = [
     </MDBox>
 
 </DashboardLayout>
+
+</>
+
   )
 }
 
