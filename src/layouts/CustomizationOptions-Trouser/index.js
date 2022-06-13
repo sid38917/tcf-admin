@@ -7,16 +7,21 @@ import MDButton from 'components/MDButton';
 import {v4 as uuidv4} from 'uuid';
 import { useForm } from "react-hook-form";
 
-
+import axios from 'axios';
 import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
 // import Card from "@mui/material/Card";
 import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
 
+const baseUrl = 'http://localhost:4000'
  const TrouserCustomization = () => {
 
   const [openForm, setOpenForm]= useState(false);
+  const [showMessage, setShowMessage] = useState({
+    status: '',
+    hide: true
+  })
   const [data, setData] = useState([ {
       id: uuidv4(),
       name: 'no lining',
@@ -33,6 +38,21 @@ import ModalComponent from "components/Modal"
         {Header: 'action', accessor: 'action', align: 'center'}
         
     ]
+    const getTrouserCustomization = async() => {
+      try {
+        const {data} = await axios.get(`${baseUrl}/trousercustomization`)
+        if(data) {
+          console.log('data trouser')
+          setData(data.data)
+        }
+      }catch (err) {
+        console.log('error', err)
+      }
+    }
+    
+    useEffect(() => {
+      getTrouserCustomization()
+    }, [])
 
     const cateogory = [
       
@@ -57,7 +77,32 @@ import ModalComponent from "components/Modal"
 
     const {register, handleSubmit, watch, formState: {errors}} = useForm();
 const onSubmit = value => {
-setData([...data, value])
+  const onSubmit = async (value) => {
+    console.log('value')
+      try {
+        const result = axios.post(`${baseUrl}/trousercustomization`, value)
+        if(result ) {
+          setShowMessage({
+            status: 'success',
+            hide: true
+          })
+          setOpenForm(false)
+          getTrouserCustomization()
+          reset()
+          console.log('resutl add trouser customization ', result)
+        }
+  // setData([...data, value])
+  } catch(err) {
+    setShowMessage({
+      status: 'error',
+      hide: false
+    })
+    console.log('error add trouser', err)
+  } finally {
+    setSubmitLoading(false)
+  
+  }
+}
 };
 
 const FormCustomization = () => {
@@ -96,7 +141,15 @@ const FormCustomization = () => {
 
   return (
     <>
-    <ModalComponent>
+        <Snackbar open ={ !showMessage.hide} autoHideDuration={6000} onClose={() => setShowMessage({ 
+        status: '',
+        hide: true})}>
+        {
+        showMessage.status === 'success' ? <Alert severity = 'success'>
+        This is a success message! </Alert> : <Alert severity = 'error'>error submit data</Alert>
+        }
+      </Snackbar>
+    <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}>
       <FormCustomization/>
     </ModalComponent>
     <DashboardLayout>
@@ -118,10 +171,15 @@ const FormCustomization = () => {
 <MDTypography variant="h6" color="white">
               Trouser Customization Table
             </MDTypography>
+            <Grid item>
+                         <Button variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
+                    Add Trouser Customization 
+                </Button>
+                         </Grid>
              </MDBox>
              <MDBox pt={3}>
             <DataTable
-              table={{ columns, rows }}
+              table={{ columns, rows:data}}
               isSorted={false}
               entriesPerPage={false}
               showTotalEntries={false}

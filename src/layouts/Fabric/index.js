@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import MDBox from "components/MDBox";
@@ -6,17 +6,27 @@ import MDTypography from "components/MDTypography";
 import MDButton from 'components/MDButton';
 import {v4 as uuidv4} from 'uuid';
 import { useForm } from "react-hook-form";
+import axios from 'axios'
 
-
-import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
+import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment, Snackbar, Alert} from "@mui/material";
 // import Card from "@mui/material/Card";
 import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
+import { resetWarningCache } from 'prop-types';
+
+const baseUrl = 'http://localhost:4000'
 
 const FabricPage = () => {
 
+
     const [openForm, setOpenForm]= useState(false);
+    const[submitLoading, setSubmitLoading ] = useState(false);
+    const [showMessage, setShowMessage] = useState({
+      status: '',
+      hide: true
+    })
+
     const [data, setData] = useState([ {
         id: uuidv4(),
         name: 'sample a',
@@ -40,6 +50,22 @@ const FabricPage = () => {
         {Header: 'action', accessor: 'action', align: 'center'}
 
     ]
+
+    const getFabric = async() => {
+      try {
+        const {data} = await axios.get(`${baseUrl}/fabric`)
+        if(data) {
+          console.log('data fabric')
+          setData(data.data)
+        }
+      }catch (err) {
+        console.log('error', err)
+      }
+    }
+
+    useEffect(() => {
+      getFabric()
+    }, [])
 
 
 
@@ -70,9 +96,35 @@ const products = [
     {label: 'shirt', value: 'shirt'}
 ]
 
-const {register, handleSubmit, watch, formState: {errors}} = useForm();
-const onSubmit = value => {
-    setData([...data, value])
+
+
+const {register, handleSubmit, watch, formState: {errors}, reset} = useForm();
+const onSubmit = async (value) => {
+    console.log('value')
+    try {
+    const result = await axios.post(`${baseUrl}/fabric`, value)
+    if(result){
+      setShowMessage({
+        status: 'success',
+        hide: true
+      })
+    setOpenForm(false)
+    getFabric()
+    reset()
+    console.log('resutl add fabric ', result)
+    }
+
+    }catch (err) {
+      setShowMessage({
+        status: 'error',
+        hide: false
+      })
+      console.log('error add fabric', err)
+    } 
+      finally{
+        setSubmitLoading(false)
+    }
+    
 };
 
     const FormFabric = () => {
@@ -125,6 +177,14 @@ const onSubmit = value => {
     }
   return (
       <>
+      <Snackbar open ={ !showMessage.hide} autoHideDuration={6000} onClose={() => setShowMessage({ 
+        status: '',
+        hide: true})}>
+        {
+        showMessage.status === 'success' ? <Alert severity = 'success'>
+        This is a success message! </Alert> : <Alert severity = 'error'>error submit data</Alert>
+        }
+      </Snackbar>
       <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}> 
       <FormFabric/>
       </ModalComponent>
@@ -150,7 +210,7 @@ const onSubmit = value => {
                 </MDTypography>
                          </Grid>
                          <Grid item>
-                         <Button variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
+                         <Button loading = {submitLoading} variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
                     Add Fabric
                 </Button>
                          </Grid>
