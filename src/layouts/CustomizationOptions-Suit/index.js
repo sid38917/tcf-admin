@@ -6,6 +6,7 @@ import MDTypography from "components/MDTypography";
 import MDButton from 'components/MDButton';
 import {v4 as uuidv4} from 'uuid';
 import { useForm } from "react-hook-form";
+import axios from 'axios'
 
 
 import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
@@ -14,9 +15,17 @@ import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
 
+
+const baseUrl = 'http://localhost:4000'
+
 const SuitCustomization = () => {
 
   const [openForm, setOpenForm]= useState(false);
+  const [showMessage, setShowMessage] = useState({
+    status: '',
+    hide: true
+  })
+  const [submitLoading, setSubmitLoading] = useState(false)
   const [data, setData] = useState([ {
       id: uuidv4(),
       name: 'double breasted 2 button',
@@ -33,6 +42,22 @@ const SuitCustomization = () => {
     {Header: 'action', accessor: 'action', align: 'center'}
     
 ]
+
+const getSuitCustomization = async() => {
+  try {
+    const {data} = await axios.get(`${baseUrl}/suitcustomization`)
+    if(data) {
+      console.log('data suit')
+      setData(data.data)
+    }
+  }catch (err) {
+    console.log('error', err)
+  }
+}
+
+useEffect(() => {
+  getSuitCustomization()
+}, [])
 
 // const rows = [
 //     {
@@ -67,9 +92,32 @@ const cateogory = [{
 
 
 const {register, handleSubmit, watch, formState: {errors}} = useForm();
-const onSubmit = value => {
-setData([...data, value])
-};
+const onSubmit = async (value) => {
+  console.log('value')
+    try {
+      const result = axios.post(`${baseUrl}/suitcustomization`, value)
+      if(result ) {
+        setShowMessage({
+          status: 'success',
+          hide: true
+        })
+        setOpenForm(false)
+        getSuitCustomization()
+        reset()
+        console.log('resutl add suit customization ', result)
+      }
+// setData([...data, value])
+} catch(err) {
+  setShowMessage({
+    status: 'error',
+    hide: false
+  })
+  console.log('error add suit', err)
+} finally {
+  setSubmitLoading(false)
+
+}
+}
 
 const FormCustomization = () => {
         
@@ -107,6 +155,14 @@ const FormCustomization = () => {
 
   return (
     <>
+    <Snackbar open ={ !showMessage.hide} autoHideDuration={6000} onClose={() => setShowMessage({ 
+        status: '',
+        hide: true})}>
+        {
+        showMessage.status === 'success' ? <Alert severity = 'success'>
+        This is a success message! </Alert> : <Alert severity = 'error'>error submit data</Alert>
+        }
+      </Snackbar>
     <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}> 
       <FormCustomization/>
       </ModalComponent>
@@ -138,7 +194,7 @@ const FormCustomization = () => {
              </MDBox>
              <MDBox pt={3}>
             <DataTable
-              table={{ columns, rows }}
+              table={{ columns, rows:data}}
               isSorted={false}
               entriesPerPage={false}
               showTotalEntries={false}

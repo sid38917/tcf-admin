@@ -13,7 +13,26 @@ import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedI
 import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
+import axios from 'axios'
+
+const baseUrl = 'http://localhost:4000'
+
 const JacketCustomization = () => {
+
+  const [openForm, setOpenForm]= useState(false);
+  const [showMessage, setShowMessage] = useState({
+      status: '',
+      hide: true
+  })
+  const [data, setData] = useState([ {
+      id: uuidv4(),
+      name: "double breasted 4 button",
+      category: "Suit Type",
+      image: "https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg",
+      action: <button>Edit</button>
+  }
+])
+
   const columns = [
     { Header: "Name", accessor: "name", width: "45%", align: "left" },
     { Header: "Category", accessor: "category", align: "left" },
@@ -21,19 +40,60 @@ const JacketCustomization = () => {
     { Header: "action", accessor: "action", align: "center" },
   ];
 
-  const rows = [
-    {
-      name: "double breasted 4 button",
-      category: "Suit Type",
-      image: "https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg",
-      action: <button>Edit</button>,
-    },
-  ];
+  const getJacketCustomization = async() => {
+    try {
+      const {data} = await axios.get(`${baseUrl}/jacketcustomization`)
+      if(data) {
+        console.log('data jacket customization')
+        setData(data.data)
+      }
+    }catch (err) {
+      console.log('error', err)
+    }
+  }
+
+  useEffect(() => {
+    getJacketCustomization()
+  }, [])
+
+  // const rows = [
+  //   {
+  //     name: "double breasted 4 button",
+  //     category: "Suit Type",
+  //     image: "https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg",
+  //     action: <button>Edit</button>,
+  //   },
+  // ];
 
   const {register, handleSubmit, watch, formState: {errors}} = useForm();
-const onSubmit = value => {
-setData([...data, value])
-};
+const onSubmit = async (value) => {
+
+  try {
+    const result = await axios.post(`${baseUrl}/jacketcustomization`, value)
+    if(result) {
+      setShowMessage({
+        status: 'success',
+        hide: true
+      })
+      setOpenForm(false)
+      getJacketCustomization()
+      reset()
+      console.log('resutl add jacket customization ', result)
+    }
+// setData([...data, value])
+} catch(err) {
+setShowMessage({
+  status: 'error',
+  hide: false
+})
+console.log('error add jacket', err)
+} finally {
+setSubmitLoading(false)
+
+}
+    }
+  
+
 
 const FormCustomization = () => {
         
@@ -71,7 +131,15 @@ const FormCustomization = () => {
 
   return (
     <>
-   <ModalComponent>
+     <Snackbar open ={ !showMessage.hide} autoHideDuration={6000} onClose={() => setShowMessage({ 
+        status: '',
+        hide: true})}>
+        {
+        showMessage.status === 'success' ? <Alert severity = 'success'>
+        This is a success message! </Alert> : <Alert severity = 'error'>error submit data</Alert>
+        }
+      </Snackbar>
+   <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}>
      <FormCustomization/>
    </ModalComponent>
     <DashboardLayout>
@@ -91,22 +159,29 @@ const FormCustomization = () => {
                 coloredShadow="info"
               >
                 <MDTypography variant="h6" color="white">
-                  Jacket Customization Table
-                </MDTypography>
-              </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={{ columns, rows }}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
-            </Card>
-          </Grid>
-        </Grid>
-      </MDBox>
+          Jacket Customization Table
+            </MDTypography>
+            <Grid item>
+                         <Button variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
+                    Add Suit Customization 
+                </Button>
+                         </Grid>
+             </MDBox>
+             <MDBox pt={3}>
+            <DataTable
+              table={{ columns, rows:data}}
+              isSorted={false}
+              entriesPerPage={false}
+              showTotalEntries={false}
+              noEndBorder
+            />
+          </MDBox>
+            
+        </Card>
+    </Grid>
+</Grid>
+
+    </MDBox>
     </DashboardLayout>
     </>
   );
