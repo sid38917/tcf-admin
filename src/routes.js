@@ -53,6 +53,7 @@ import TrouserCustomization from 'layouts/CustomizationOptions-Trouser'
 import ShirtCustomization from 'layouts/CustomizationOptions-Shirt'
 import SuitCustomization from 'layouts/CustomizationOptions-Suit';
 import JacketCustomization from 'layouts/CustomizationOptions-Jacket'
+import Category from "layouts/Category";
 import Users from 'layouts/users'
 
 const routes = [
@@ -106,11 +107,11 @@ const routes = [
   },
   {
     type: "collapse",
-    name: "Users",
-    key: "users",
-    icon: <Icon fontSize="small">login</Icon>,
-    route: "/users",
-    component: <Users />,
+    name: "Category",
+    key: "Category",
+    icon: <Icon fontSize="small">Category</Icon>,
+    route: "/category",
+    component: <Category/>,
   },
   {
     type: "collapse",

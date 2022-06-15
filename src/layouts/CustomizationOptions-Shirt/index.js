@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import DashboardLayout from "examples/LayoutContainers/DashboardLayout";
 import DashboardNavbar from "examples/Navbars/DashboardNavbar";
 import MDBox from "components/MDBox";
@@ -6,14 +6,17 @@ import MDTypography from "components/MDTypography";
 import MDButton from 'components/MDButton';
 import {v4 as uuidv4} from 'uuid';
 import { useForm } from "react-hook-form";
+import axios from 'axios'
 
 
-import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment} from "@mui/material";
+import {Grid, Button, Card, Row, Icon, TextField, Autocomplete, Stack, OutlinedInput, InputAdornment, Snackbar, Alert} from "@mui/material";
 // import Card from "@mui/material/Card";
 import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
-import axios from 'axios';
+
+const baseUrl = 'http://localhost:4000'
+
 
 const ShirtCustomization = () => {
 
@@ -27,7 +30,7 @@ const ShirtCustomization = () => {
   const [data, setData] = useState([ {
       id: uuidv4(),
       name: 'blue button',
-      category: 'buttons',
+      category: 'BUTTON',
       image: 'https://i.ibb.co/MP7qgsQ/NJB-PC-0002-6420016-C-GREY.jpg',
       action: <button>Edit</button>
   }
@@ -78,32 +81,33 @@ const ShirtCustomization = () => {
     // ]
 
     const {register, handleSubmit, watch, formState: {errors}} = useForm();
-const onSubmit = async (value) => {
-  console.log('value')
-  try {
-  const result = await axios.post(`${baseUrl}/shirtcustomization`, value)
-  if(result){
-    setShowMessage({
-      status: 'success',
-      hide: true
-    })
-  setOpenForm(false)
-  getShirtCustomization()
-  reset()
-  console.log('resutl add shirt customization ', result)
-  }
-
-  }catch (err) {
-    setShowMessage({
-      status: 'error',
-      hide: false
-    })
-    console.log('error add shirt customization', err)
-  } 
-    finally{
+    const onSubmit = async (value) => {
+      console.log('value')
+        try {
+          const result = axios.post(`${baseUrl}/shirtcustomization`, value)
+          if(result ) {
+            setShowMessage({
+              status: 'success',
+              hide: true
+            })
+            setOpenForm(false)
+            getShirtCustomization()
+            reset()
+            console.log('resutl add shirt customization ', result)
+          }
+    // setData([...data, value])
+    } catch(err) {
+      setShowMessage({
+        status: 'error',
+        hide: false
+      })
+      console.log('error add shirt', err)
+    } finally {
       setSubmitLoading(false)
-  }
-};
+    
+    }
+    }
+;
 
 const FormCustomization = () => {
         
@@ -195,6 +199,6 @@ const FormCustomization = () => {
     </DashboardLayout>
 </>
   )
-}
 
+      }
 export default ShirtCustomization
