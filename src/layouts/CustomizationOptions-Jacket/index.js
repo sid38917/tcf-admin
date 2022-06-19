@@ -43,10 +43,28 @@ const JacketCustomization = () => {
   const getJacketCustomization = async() => {
     try {
       const {data} = await axios.get(`${baseUrl}/jacketcustomization`)
-      if(data) {
-        console.log('data jacket customization')
-        setData(data.data)
-      }
+     
+        if(data) {
+          const formatData = data.data.map((item) => {
+            return {
+            
+              name: item.name,
+              category: item.category,
+    
+              image: <img height={50} width={50} src={item.image} />,
+              action: <Stack>
+                
+                <MDButton>
+                  Update Details
+                </MDButton>
+              </Stack>
+        }
+      })
+      console.log(data.data)
+      setData(formatData)
+    
+  }
+    
     }catch (err) {
       console.log('error', err)
     }

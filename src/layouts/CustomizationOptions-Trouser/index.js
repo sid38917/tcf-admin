@@ -76,21 +76,31 @@ const baseUrl = 'http://localhost:4000'
     // ]
 
     const {register, handleSubmit, watch, formState: {errors}} = useForm();
-const onSubmit = value => {
+
   const onSubmit = async (value) => {
     console.log('value')
       try {
         const result = axios.post(`${baseUrl}/trousercustomization`, value)
-        if(result ) {
-          setShowMessage({
-            status: 'success',
-            hide: true
-          })
-          setOpenForm(false)
-          getTrouserCustomization()
-          reset()
-          console.log('resutl add trouser customization ', result)
+        if(data) {
+          const formatData = data.data.map((item) => {
+            return {
+            
+              name: item.name,
+              category: item.category,
+    
+              image: <img height={50} width={50} src={item.image} />,
+              action: <Stack>
+                
+                <MDButton>
+                  Update Details
+                </MDButton>
+              </Stack>
         }
+      })
+      console.log(data.data)
+      setData(formatData)
+    }
+    
   // setData([...data, value])
   } catch(err) {
     setShowMessage({
@@ -103,7 +113,7 @@ const onSubmit = value => {
   
   }
 }
-};
+
 
 const FormCustomization = () => {
         

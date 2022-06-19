@@ -14,64 +14,57 @@ import DataTable from "examples/Tables/DataTable";
 import AddIcon from "@mui/icons-material/Add"
 import ModalComponent from "components/Modal"
 import { resetWarningCache } from 'prop-types';
-
+import FormFabric from 'components/Fabric/FormFabric';
 const baseUrl = 'http://localhost:4000'
 
 const FabricPage = () => {
 
+  
+
 
     const [openForm, setOpenForm]= useState(false);
-    const[submitLoading, setSubmitLoading ] = useState(false);
+    const[submitLoading, setSubmitLoading ] = useState(false);  
+
+    const [listPrice, setListPrice] = useState([{
+      name: 'suit',
+      price: 10000
+    }])
     const [showMessage, setShowMessage] = useState({
       status: '',
       hide: true
     })
 
-    const [data, setData] = useState([ {
-        id: uuidv4(),
-        code: 'ST123',
-        name: 'Cavani Skyline',
-            color: 'blue',
-            pattern: 'checks',
-            composition: 'wool',
-            image: 'url',
-        
-            suitPrice: 1000,
-            shirtPrice: 10000,
-            trouserPrice: 10000,
-            jacketPrice: 10000,
-            overcoatPrice:1000,
-            vestsPrice: 10000,
-            jeansPrice: 0,
-            waistcoatPrice: 1000,
-            poloshirtPrice: 10000,
-            batikPrice: 10000,
-            action: <button >Edit</button>
-    }
+     const [data, setData] = useState([ 
         
     ])
 
    
+    const code = [
+      {header: 'ST123', value: '1'}
+    ]
 
     const columns = [
+      {Header: "Image", accessor: 'image', align: 'center'},
+
         {Header: "Code", accessor: "code", width: "45%", align:'left'},
         {Header: 'Name', accessor:'name', align:'left'},
         {Header: "Color", accessor: 'color', align: 'center'},
 
         {Header: "Pattern", accessor: 'pattern', align: 'center'},
         {Header: "Composition", accessor: 'composition', align: 'center'},
-        {Header: "Image", accessor: 'image', align: 'center'},
+        {Header: "Price", accessor: 'price', align: 'center'},
+        {Header: 'Action', accessor: 'action', align: 'center'}
        
-        {Header: 'Suit Price', accessor: 'suit price', align: 'center'},
-        {Header: 'Shirt Price', accessor:'shirt price', align: 'center'},
-        {header: 'Trouser Price', accessor: 'trouser price', align: 'center'},
-        {header: 'Jacket Price', accessor: 'jacket price', align: 'center'},
-        {Header: 'overcoat price', accessor: 'overcoat price', align: 'center'},
-        {Header: 'vests price', accessor: 'vests price', align: 'center'},
-        {Header: 'jeans price', accessor: 'jeans price', align: 'center'},
-        {Header: 'waistcoat price', accessor: 'waistcoat price', align: 'center'},
-        {Header: 'polo shirt price', accessor: 'polo shirt price', align: 'center'},
-        {Header: 'batik price', accessor: 'batik shirt price', align: 'center'},
+        // {Header: 'Suit Price', accessor: 'suit price', align: 'center'},
+        // {Header: 'Shirt Price', accessor:'shirt price', align: 'center'},
+        // {header: 'Trouser Price', accessor: 'trouser price', align: 'center'},
+        // {header: 'Jacket Price', accessor: 'jacket price', align: 'center'},
+        // {Header: 'overcoat price', accessor: 'overcoat price', align: 'center'},
+        // {Header: 'vests price', accessor: 'vests price', align: 'center'},
+        // {Header: 'jeans price', accessor: 'jeans price', align: 'center'},
+        // {Header: 'waistcoat price', accessor: 'waistcoat price', align: 'center'},
+        // {Header: 'polo shirt price', accessor: 'polo shirt price', align: 'center'},
+        // {Header: 'batik price', accessor: 'batik shirt price', align: 'center'},
    
 
 
@@ -97,7 +90,27 @@ const FabricPage = () => {
         const {data} = await axios.get(`${baseUrl}/fabric`)
         if(data) {
           console.log('data fabric')
-          setData(data.data)
+          const formatData = data.data.map((item) => {
+            return {
+              id: item.code,
+              name: item.name,
+              color: item.color,
+              pattern: item.pattern,
+              composition: item.composition,
+              image: <img height={50} width={50} src={item.image} />,
+              price: item.price && <ul>{item.price.map((iPrice) => <li>{iPrice.name} - {iPrice.price}</li>)}</ul>,
+              action: <Stack>
+                <MDButton>
+                  Update Price
+                </MDButton>
+                <MDButton>
+                  Update Details
+                </MDButton>
+              </Stack>
+            }
+          })
+          console.log(data.data)
+          setData(formatData)
         }
       }catch (err) {
         console.log('error', err)
@@ -144,257 +157,45 @@ const products = [
 
 
 
-const {register, handleSubmit, watch, formState: {errors}, reset} = useForm();
-const onSubmit = async (value) => {
-    console.log('value')
-    try {
-    const result = await axios.post(`${baseUrl}/fabric`, value)
-    if(result){
-      setShowMessage({
-        status: 'success',
-        hide: true
-      })
-    setOpenForm(false)
-    getFabric()
-    reset()
-    console.log('resutl add fabric ', result)
-    }
+// const {register, handleSubmit, watch, formState: {errors}, reset} = useForm();
+// // const onSubmit = async (value) => {
+// //     console.log('value')
+// //     try {
+// //     const result = await axios.post(`${baseUrl}/fabric`, value)
+// //     if(result){
+// //       setShowMessage({
+// //         status: 'success',
+// //         hide: true
+// //       })
+// //     setOpenForm(false)
+// //     getFabric()
+// //     reset()
+// //     console.log('resutl add fabric ', result)
+// //     }
 
-    }catch (err) {
-      setShowMessage({
-        status: 'error',
-        hide: false
-      })
-      console.log('error add fabric', err)
-    } 
-      finally{
-        setSubmitLoading(false)
-    }
+// //     }catch (err) {
+// //       setShowMessage({
+// //         status: 'error',
+// //         hide: false
+// //       })
+// //       console.log('error add fabric', err)
+// //     } 
+// //       finally{
+// //         setSubmitLoading(false)
+// //     }
     
-};
-
-    const FormFabric = () => {
-        
-        return <form onSubmit={handleSubmit(onSubmit)}> 
-            <Stack direction = "column" spacing = {2}>
-        
-       
-            <TextField fullWidth placeholder='Code'  id='outlined-basic' {...register("code")} label="code"/>
-            <TextField fullWidth placeholder='Name'  id='outlined-basic' {...register("name")} label="name"/>
-            <Autocomplete options = {fabricColor}
-            sx={{ width: 250, height:50}}
-           
-            renderInput={(params) => <TextField {...params} label="Color"  {...register("color")}/>}
-          />
-           <Autocomplete options = {fabricPattern}
-            sx={{ width: 250 }}
-           
-            renderInput={(params) => <TextField {...params} label="Pattern"  {...register("pattern")}/>}
-          />
-
-
-     
-        
-            <Autocomplete options = {fabricComposition}
-            sx={{ width: 250 }}
-           
-            renderInput={(params) => <TextField {...params} label="Composition"  {...register("composition")}/>}
-
-            
-          />
-
-<TextField fullWidth placeholder='Image' id='outlined-basic'  {...register("image")}/>
-
-
-        
-<OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("suit price")}
-            label="Suit Price"
-            placeholder='Suit Price'
-            sx={{length: 100}}
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("shirt price")}
-            label="Shirt Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("trouser price")}
-            label="Trouser Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("jacket price")}
-            label="Jacket Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("overcoat price")}
-            label='Overcoat Price'
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("vests price")}
-            label="Vests Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("jeans price")}
-            label="Jeans Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("waistcoat price")}
-            label="Waistcoat Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("polo shirt price")}
-            label="Polo Shirt Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register('batik price')}
-            label="Batik Price"
-          />
-         
-   
-       
-    
-        
-
-
-             {/* <Autocomplete options = {products}
-            sx={{ width: 300 }}
-           
-            renderInput={(params) => <TextField {...params} label="Product"  {...register("product")}/>}
-          /> */}
+// };
 
 
 
-        </Stack>
-        </form>
-    }
-
-    const FormFabric2 = () => {
-
-      <Stack direction = "column" spacing = {0.5}>
-
-<OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("suit price")}
-            label="Suit Price"
-            placeholder='Suit Price'
-            sx={{length: 100}}
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("shirt price")}
-            label="Shirt Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("trouser price")}
-            label="Trouser Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("jacket price")}
-            label="Jacket Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("overcoat price")}
-            label='Overcoat Price'
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("vests price")}
-            label="Vests Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("jeans price")}
-            label="Jeans Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("waistcoat price")}
-            label="Waistcoat Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register("polo shirt price")}
-            label="Polo Shirt Price"
-          />
-          <OutlinedInput
-            id="outlined-adornment-amount"
-  
-            startAdornment={<InputAdornment position="start">Rp.</InputAdornment>}
-            {...register('batik price')}
-            label="Batik Price"
-          />
-         
-
-
-
-          <MDButton variant = 'contained' color = 'info' type='submit' >Submit</MDButton>
-
-      </Stack>
-
-    }
   return (
       <>
-      <Snackbar open ={ !showMessage.hide} autoHideDuration={6000} onClose={() => setShowMessage({ 
-        status: '',
-        hide: true})}>
-        {
-        showMessage.status === 'success' ? <Alert severity = 'success'>
-        This is a success message! </Alert> : <Alert severity = 'error'>error submit data</Alert>
-        }
-      </Snackbar>
+     
       <ModalComponent open = {openForm} setOpen={(value) => setOpenForm(value)}> 
-      <FormFabric/>
+      <FormFabric onSuccess={() => {
+          getFabric()
+          setOpenForm(false)
+      }}/>
       </ModalComponent>
     <DashboardLayout>
         <DashboardNavbar />
@@ -416,6 +217,7 @@ const onSubmit = async (value) => {
                          <MDTypography variant="h6" color="white">
                   Fabric Table
                 </MDTypography>
+
                          </Grid>
                          <Grid item>
                          <Button loading = {submitLoading} variant="outlined" startIcon={<AddIcon/>} onClick={() => setOpenForm(true)}> 
@@ -423,6 +225,12 @@ const onSubmit = async (value) => {
                 </Button>
                          </Grid>
                      </Grid>
+                     
+                 
+               
+          
+                         
+                    
 
 
                 

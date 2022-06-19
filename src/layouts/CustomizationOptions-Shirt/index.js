@@ -59,9 +59,25 @@ const ShirtCustomization = () => {
       try {
         const {data} = await axios.get(`${baseUrl}/shirtcustomization`)
         if(data) {
-          console.log('data shirt customization')
-          setData(data.data)
+          const formatData = data.data.map((item) => {
+            return {
+            
+              name: item.name,
+              category: item.category,
+    
+              image: <img height={50} width={50} src={item.image} />,
+              action: <Stack>
+                
+                <MDButton>
+                  Update Details
+                </MDButton>
+              </Stack>
         }
+      })
+      console.log(data.data)
+      setData(formatData)
+    }
+    
       }catch (err) {
         console.log('error', err)
       }
