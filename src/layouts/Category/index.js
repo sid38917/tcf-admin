@@ -189,7 +189,7 @@ const Category = () => {
                     </Stack>
                   </Grid>
                   <Grid item>
-                    <Button
+                     <Button
                       loading={submitLoading}
                       variant="outlined"
                       startIcon={<AddIcon />}
